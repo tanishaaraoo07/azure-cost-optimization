@@ -1,47 +1,103 @@
-# Azure Cost Optimizer
 
-## Overview
-The Azure Cost Optimizer project aims to enhance the efficiency of data storage and retrieval processes by implementing an archiving solution. This project focuses on reducing costs associated with data storage in Azure by archiving old records and providing a seamless retrieval mechanism for both active and archived data.
+# 🚀 Azure Cost Optimizer
 
-## Project Structure
-- **archive_pipeline/archive.py**: Contains the script responsible for archiving old records.
-- **retrieval_layer/retrieve.py**: Implements logic to fetch data from either a Cosmos database or archived records.
-- **utils/config.py**: Defines environment variables and constants used throughout the project.
-- **docs/**: Contains documentation files, including architecture diagrams and cost comparisons.
-- **tests/**: Includes unit tests for both archiving and retrieval functionalities.
-- **requirements.txt**: Lists the dependencies required for the project.
-- **.env**: Stores environment variables securely.
+## 🧩 Overview
 
-## How to Run
-1. Clone the repository:
-   ```
+**Azure Cost Optimizer** is a practical solution for managing data growth and optimizing cloud expenditure. This project introduces a streamlined archival pipeline for Azure Cosmos DB that automatically migrates stale records (e.g., older than 90 days) to Azure Blob Storage. The retrieval layer ensures seamless access to both active and archived records, offering a cost-effective and performant data architecture.
+
+## 🗂️ Project Structure
+
+```
+azure-cost-optimizer/
+├── archive_pipeline/
+│   ├── archive.py              # Azure Function: orchestrates archival logic
+│   ├── archive_logic.py        # Core logic for querying, archiving, and deleting old records
+├── retrieval_layer/
+│   ├── retrieve.py             # REST API to fetch records from Cosmos DB or blob archive
+│   ├── helper.py               # Utility for deserializing and querying blobs
+├── utils/
+│   ├── config.py               # Loads environment configs from .env
+├── tests/                      # Unit tests for archiving and retrieval
+├── docs/                       # Documentation (architecture, setup, cost analysis)
+├── requirements.txt            # Project dependencies
+├── .env                        # Environment variables (not committed)
+└── README.md                   # Project documentation
+```
+
+## ⚙️ How to Run
+
+> Ensure [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) is running locally if testing with local emulators.
+
+1. **Clone the repository**
+
+   ```bash
    git clone <repository-url>
    cd azure-cost-optimizer
    ```
 
-2. Install the required dependencies:
-   ```
+2. **Install dependencies**
+
+   ```bash
    pip install -r requirements.txt
    ```
 
-3. Set up your environment variables in the `.env` file.
+3. **Configure environment**
 
-4. Run the archiving script:
-   ```
+   * Copy `.env.example` (if available) to `.env`
+   * Set your values for:
+
+     ```env
+     COSMOS_URI=
+     COSMOS_KEY=
+     COSMOS_DB_NAME=
+     COSMOS_CONTAINER_NAME=
+     AZURE_STORAGE_CONNECTION_STRING=
+     BLOB_CONTAINER_NAME=
+     ```
+
+4. **Run archiving logic (standalone or as Azure Function)**
+
+   ```bash
    python archive_pipeline/archive.py
    ```
 
-5. To retrieve data, execute:
-   ```
-   python retrieval_layer/retrieve.py
+5. **Run retrieval layer (Azure Function host or test directly)**
+
+   ```bash
+   func start --verbose
    ```
 
-## Design Decisions
-- The decision to archive old records was made to optimize storage costs and improve data retrieval times.
-- The architecture was designed to ensure that both active and archived data can be accessed efficiently without compromising performance.
-- Unit tests were implemented to validate the functionality of both the archiving and retrieval processes, ensuring reliability and maintainability.
+6. **Test endpoint**
+   Visit:
 
-## Future Work
-- Enhance the archiving logic to include more sophisticated criteria for identifying records to archive.
-- Implement additional metrics to monitor the cost savings achieved through the archiving process.
-- Expand the documentation to include more detailed usage examples and best practices.
+   ```
+   http://localhost:7071/api/retrieval_layer
+   ```
+
+## 🧠 Design Decisions
+
+* **Hybrid storage**: Active data remains in Cosmos DB; cold data is archived to Blob Storage.
+* **Cost-driven**: Archival of stale records helps reduce RU charges and overall Azure costs.
+* **Seamless retrieval**: Retrieval API checks Cosmos DB first, falls back to blobs if data is archived.
+* **Local dev support**: Emulates services with [Azurite](https://github.com/Azure/Azurite) for offline testing.
+* **Fail-safe deletion**: Skips deletion of records that lack a valid partition key (`userId`) with warning logs.
+* **Defensive storage handling**: Blob container creation is exception-safe for robustness.
+
+## 🧪 Testing
+
+* Unit tests are available in the `/tests` directory.
+* Use `pytest` to run:
+
+  ```bash
+  pytest tests/
+  ```
+
+## 🌱 Future Enhancements
+
+* ✅ Add retention policies or configuration-based archival rules (e.g., by type, usage).
+* 🔍 Add monitoring and logging dashboards for archival metrics and blob usage.
+* 🧾 Enable query capabilities over blob data using Azure Data Lake or Synapse.
+* 🔒 Implement RBAC/Access tokens for secure blob access.
+* 📚 Extend docs with setup scripts, example queries, and performance benchmarks.
+
+
