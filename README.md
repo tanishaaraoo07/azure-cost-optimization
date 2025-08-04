@@ -2,6 +2,7 @@
 # 🚀 Azure Cost Optimizer
 
 ## 🧩 Overview
+chatgpt prompt link : "https://chatgpt.com/share/6891154a-b898-8011-a226-a419e0ba43b1"
 
 **Azure Cost Optimizer** is a practical solution for managing data growth and optimizing cloud expenditure. This project introduces a streamlined archival pipeline for Azure Cosmos DB that automatically migrates stale records (e.g., older than 90 days) to Azure Blob Storage. The retrieval layer ensures seamless access to both active and archived records, offering a cost-effective and performant data architecture.
 
